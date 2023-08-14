@@ -1,0 +1,23 @@
+[package]
+name = "sanctum"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+async-trait = "0.1.73"
+password-auth = "0.3.0"
+thiserror = "1.0.44"
+chrono = "0.4.26"
+oauth2 = "4.4.1"
+reqwest = "^0.11"
+
+[dependencies.rand_core]
+version = "0.6.4"
+features = ["getrandom"]
+
+[dependencies.totp-rs]
+version = "5.2.0"
+features = ["qr", "otpauth", "gen_secret", "zeroize"]
+
+# oxide-auth = "0.5.3"
+# samael = "0.0.12"
