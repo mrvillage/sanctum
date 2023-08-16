@@ -7,8 +7,8 @@ use oauth2::{
     reqwest::{async_http_client, Error as ReqwestError},
     url::{ParseError, Url},
     AuthUrl, AuthorizationCode, ClientId, ClientSecret, CsrfToken, PkceCodeChallenge,
-    PkceCodeVerifier, RedirectUrl, RequestTokenError, Scope, StandardErrorResponse,
-    StandardTokenResponse, TokenResponse, TokenUrl,
+    PkceCodeVerifier, RedirectUrl, RequestTokenError, Scope, StandardErrorResponse, TokenResponse,
+    TokenUrl,
 };
 use rand_core::{OsRng, RngCore};
 use thiserror::Error;
@@ -245,12 +245,12 @@ pub trait Backend {
     type Error: std::error::Error + std::fmt::Display;
     const TOTP_ISSUER: &'static str;
 
-    #[inline(always)]
+    #[inline]
     fn hash_password(&self, password: &str) -> String {
         password_auth::generate_hash(password.as_bytes())
     }
 
-    #[inline(always)]
+    #[inline]
     fn verify_password(&self, input: &str, hash: &str) -> Result<(), password_auth::VerifyError> {
         password_auth::verify_password(input, hash)
     }
@@ -277,7 +277,7 @@ pub trait Backend {
         .await
     }
 
-    #[inline(always)]
+    #[inline]
     fn get_token_valid_duration(&self, ctx: &Self::Context, r#type: &TokenType) -> Duration {
         match r#type {
             TokenType::Magic => Duration::minutes(15),
@@ -306,7 +306,7 @@ pub trait Backend {
         code: &str,
     ) -> Result<bool, Self::Error>;
 
-    #[inline(always)]
+    #[inline]
     fn totp(&self, ctx: &Self::Context, secret: &str) -> Result<TOTP, AuthError<Self>> {
         Ok(TOTP::from_rfc6238(Rfc6238::new(
             8,
@@ -316,7 +316,7 @@ pub trait Backend {
         )?)?)
     }
 
-    #[inline(always)]
+    #[inline]
     fn totp_from_ctx(&self, ctx: &Self::Context) -> Result<TOTP, AuthError<Self>> {
         self.totp(ctx, self.get_totp_secret(ctx))
     }
@@ -363,17 +363,17 @@ pub trait Backend {
         }
     }
 
-    #[inline(always)]
+    #[inline]
     fn get_current_totp_code(&self, ctx: &Self::Context) -> Result<String, AuthError<Self>> {
         Ok(self.totp_from_ctx(ctx)?.generate_current()?)
     }
 
-    #[inline(always)]
+    #[inline]
     fn generate_totp_secret_base_32(&self) -> String {
         Secret::generate_secret().to_encoded().to_string()
     }
 
-    #[inline(always)]
+    #[inline]
     async fn generate_magic_token(&self, ctx: &Self::Context) -> Result<Token, AuthError<Self>> {
         self.generate_token(ctx, TokenType::Magic).await
     }
@@ -410,12 +410,12 @@ pub trait Backend {
         }
     }
 
-    #[inline(always)]
+    #[inline]
     fn get_totp_url(&self, ctx: &Self::Context) -> Result<String, AuthError<Self>> {
         Ok(self.totp_from_ctx(ctx)?.get_url())
     }
 
-    #[inline(always)]
+    #[inline]
     fn get_totp_qr_code(&self, ctx: &Self::Context) -> Result<String, AuthError<Self>> {
         self.totp_from_ctx(ctx)?
             .get_qr()
@@ -431,12 +431,12 @@ pub trait Backend {
         O: OAuthProvider,
     {
         let client = BasicClient::new(
-            ClientId::new(O::get_client_id()),
-            Some(ClientSecret::new(O::get_client_secret())),
-            AuthUrl::new(O::get_auth_url())?,
-            Some(TokenUrl::new(O::get_token_url())?),
+            ClientId::new(O::CLIENT_ID.to_string()),
+            Some(ClientSecret::new(O::CLIENT_SECRET.to_string())),
+            AuthUrl::new(O::AUTH_URL.to_string())?,
+            Some(TokenUrl::new(O::TOKEN_URL.to_string())?),
         )
-        .set_redirect_uri(RedirectUrl::new(O::get_redirect_url())?);
+        .set_redirect_uri(RedirectUrl::new(O::REDIRECT_URL.to_string())?);
 
         let (pkce_challenge, pkce_verifier) = PkceCodeChallenge::new_random_sha256();
 
@@ -492,9 +492,9 @@ pub trait Backend {
 }
 
 pub trait OAuthProvider {
-    fn get_client_id() -> String;
-    fn get_client_secret() -> String;
-    fn get_auth_url() -> String;
-    fn get_token_url() -> String;
-    fn get_redirect_url() -> String;
+    const CLIENT_ID: &'static str;
+    const CLIENT_SECRET: &'static str;
+    const AUTH_URL: &'static str;
+    const TOKEN_URL: &'static str;
+    const REDIRECT_URL: &'static str;
 }
