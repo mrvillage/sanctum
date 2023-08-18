@@ -2,6 +2,9 @@
 name = "sanctum"
 version = "0.1.0"
 edition = "2021"
+description = "A simple, secure, and modern authentication system for Rust web applications."
+license = "MIT"
+repository = "https://github.com/mrvillage/sanctum"
 
 [dependencies]
 async-trait = "0.1.73"
