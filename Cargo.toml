@@ -13,6 +13,7 @@ thiserror = "1.0.44"
 chrono = "0.4.26"
 oauth2 = "4.4.1"
 reqwest = "^0.11"
+serde = { version = "1.0", features = ["derive"], optional = true }
 
 [dependencies.rand_core]
 version = "0.6.4"
