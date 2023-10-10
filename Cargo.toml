@@ -1,6 +1,6 @@
 [package]
 name = "sanctum"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "A simple, secure, and modern authentication system for Rust web applications."
 license = "MIT"
